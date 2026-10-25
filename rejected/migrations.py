@@ -6,9 +6,7 @@ from pathlib import Path
 def migrate(conn: sqlite3.Connection) -> None:
     migrations = find_migrations()
 
-    current_version = conn.execute(
-        "PRAGMA user_version"
-    ).fetchone()[0]
+    current_version = conn.execute("PRAGMA user_version").fetchone()[0]
 
     latest_version = migrations[-1][0] if migrations else 0
     if current_version > latest_version:

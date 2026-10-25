@@ -38,29 +38,24 @@ DELETE_APPLICATION_SQL = """
 """
 
 
-def find_application(
-        conn: sqlite3.Connection,
-        application_id: int,
-) -> sqlite3.Row:
+def find(conn: sqlite3.Connection, application_id: int) -> sqlite3.Row:
     return conn.execute(
         FIND_APPLICATION_SQL,
         (application_id,),
     ).fetchone()
 
 
-def find_all_applications(
-        conn: sqlite3.Connection,
-) -> list[sqlite3.Row]:
+def find_all(conn: sqlite3.Connection) -> list[sqlite3.Row]:
     return conn.execute(FIND_ALL_APPLICATIONS_SQL).fetchall()
 
 
-def insert_application(
-        conn: sqlite3.Connection,
-        company: str,
-        role: str,
-        applied_at: str,
-        resume_id: int = None,
-        source: str = None,
+def insert(
+    conn: sqlite3.Connection,
+    company: str,
+    role: str,
+    applied_at: str,
+    resume_id: int = None,
+    source: str = None,
 ) -> sqlite3.Row:
     return conn.execute(
         INSERT_APPLICATION_SQL,
@@ -68,14 +63,14 @@ def insert_application(
     ).fetchone()
 
 
-def update_application(
-        conn: sqlite3.Connection,
-        application_id: int,
-        company: str,
-        role: str,
-        applied_at: str,
-        resume_id: int,
-        source: str,
+def update(
+    conn: sqlite3.Connection,
+    application_id: int,
+    company: str,
+    role: str,
+    applied_at: str,
+    resume_id: int,
+    source: str,
 ) -> sqlite3.Row:
     return conn.execute(
         UPDATE_APPLICATION_SQL,
@@ -83,10 +78,7 @@ def update_application(
     ).fetchone()
 
 
-def delete_application(
-        conn: sqlite3.Connection,
-        application_id: int,
-) -> bool:
+def delete(conn: sqlite3.Connection, application_id: int) -> bool:
     cursor = conn.execute(
         DELETE_APPLICATION_SQL,
         (application_id,),
