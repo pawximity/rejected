@@ -1,13 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from rejected.models.resume_type import ResumeType
-
 
 @dataclass
 class Resume:
     id: int
-    type: ResumeType
+    type_id: int
     version: int
     name: str
     created_at: datetime

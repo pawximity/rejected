@@ -1,13 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from rejected.models.application import Application
-
 
 @dataclass
 class ApplicationEvent:
     id: int
-    application: Application
+    application_id: int
     event_type: str
     occurred_at: datetime
     notes: str

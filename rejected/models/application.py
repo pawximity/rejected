@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from rejected.models.resume import Resume
-
 
 @dataclass
 class Application:
@@ -10,7 +8,7 @@ class Application:
     company: str
     role: str
     applied_at: datetime
-    resume: Resume
+    resume_id: int
     source: str
     created_at: datetime
     updated_at: datetime
