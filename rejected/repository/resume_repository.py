@@ -55,10 +55,10 @@ def insert(
 
 def update(
     conn: sqlite3.Connection,
+    resume_id: int,
     type_id: int,
     version: int,
     name: str,
-    resume_id: int,
 ) -> sqlite3.Row:
     return conn.execute(
         UPDATE_RESUME_SQL, (type_id, version, name, resume_id)
