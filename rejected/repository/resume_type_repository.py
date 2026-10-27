@@ -6,6 +6,12 @@ FIND_RESUME_TYPE_SQL = """
     WHERE id = ?
 """
 
+FIND_RESUME_TYPE_BY_NAME_SQL = """
+    SELECT *
+    FROM resume_types
+    WHERE name = ?
+"""
+
 FIND_ALL_RESUME_TYPES_SQL = """
     SELECT *
     FROM resume_types
@@ -36,6 +42,10 @@ DELETE_RESUME_TYPE_SQL = """
 
 def find(conn: sqlite3.Connection, resume_type_id: int) -> sqlite3.Row:
     return conn.execute(FIND_RESUME_TYPE_SQL, (resume_type_id,)).fetchone()
+
+
+def find_by_name(conn: sqlite3.Connection, name: str) -> sqlite3.Row:
+    return conn.execute(FIND_RESUME_TYPE_BY_NAME_SQL, (name,)).fetchone()
 
 
 def find_all(conn: sqlite3.Connection) -> list[sqlite3.Row]:

@@ -1,6 +1,6 @@
 import sqlite3
+from importlib.abc import Traversable
 from importlib.resources import files
-from pathlib import Path
 
 
 def migrate(conn: sqlite3.Connection) -> None:
@@ -28,14 +28,19 @@ def migrate(conn: sqlite3.Connection) -> None:
             raise
 
 
-def find_migrations() -> list[tuple[int, Path]]:
+def find_migrations() -> list[tuple[int, Traversable]]:
     migration_dir = files("rejected").joinpath("sql")
     migrations = []
     for path in migration_dir.iterdir():
         if path.name.endswith(".sql"):
             version = int(path.name.split("_", 1)[0])
             migrations.append((version, path))
-    return sorted(migrations)
+
+    migrations.sort(key=lambda migration: migration[0])
+    versions = [version for version, _ in migrations]
+    if versions != list(range(1, len(versions) + 1)):
+        raise RuntimeError(f"Invalid migration sequence: {versions}")
+    return migrations
 
 
 def migration_script_format(sql: str, version: int) -> str:
