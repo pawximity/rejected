@@ -14,7 +14,7 @@ FIND_ALL_APPLICATIONS_SQL = """
 
 INSERT_APPLICATION_SQL = """
     INSERT INTO applications (
-        company, role, applied_at, resume_id, source
+        company, role, applied_at, resume_type_id, source
     )
     VALUES (?, ?, ?, ?, ?)
     RETURNING *
@@ -25,7 +25,7 @@ UPDATE_APPLICATION_SQL = """
     SET company = ?,
         role = ?,
         applied_at = ?,
-        resume_id = ?,
+        resume_type_id = ?,
         source = ?,
         updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
@@ -54,12 +54,12 @@ def insert(
     company: str,
     role: str,
     applied_at: str,
-    resume_id: int = None,
+    resume_type_id: int = None,
     source: str = None,
 ) -> sqlite3.Row:
     return conn.execute(
         INSERT_APPLICATION_SQL,
-        (company, role, applied_at, resume_id, source),
+        (company, role, applied_at, resume_type_id, source),
     ).fetchone()
 
 
@@ -69,12 +69,12 @@ def update(
     company: str,
     role: str,
     applied_at: str,
-    resume_id: int,
+    resume_type_id: int,
     source: str,
 ) -> sqlite3.Row:
     return conn.execute(
         UPDATE_APPLICATION_SQL,
-        (company, role, applied_at, resume_id, source, application_id),
+        (company, role, applied_at, resume_type_id, source, application_id),
     ).fetchone()
 
 
