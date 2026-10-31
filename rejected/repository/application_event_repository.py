@@ -1,4 +1,7 @@
 import sqlite3
+from typing import Optional
+
+from models.application_event import ApplicationEvent
 
 FIND_APPLICATION_EVENT_SQL = """
     SELECT *
@@ -37,15 +40,19 @@ DELETE_APPLICATION_EVENT_SQL = """
 """
 
 
-def find(conn: sqlite3.Connection, application_event_id: int) -> sqlite3.Row:
-    return conn.execute(
+def find(
+    conn: sqlite3.Connection, application_event_id: int
+) -> Optional[ApplicationEvent]:
+    row = conn.execute(
         FIND_APPLICATION_EVENT_SQL,
         (application_event_id,),
     ).fetchone()
+    return ApplicationEvent(**dict(row)) if row else None
 
 
-def find_all(conn: sqlite3.Connection) -> list[sqlite3.Row]:
-    return conn.execute(FIND_ALL_APPLICATION_EVENTS_SQL).fetchall()
+def find_all(conn: sqlite3.Connection) -> list[ApplicationEvent]:
+    rows = conn.execute(FIND_ALL_APPLICATION_EVENTS_SQL).fetchall()
+    return [ApplicationEvent(**dict(row)) for row in rows]
 
 
 def insert(
@@ -54,11 +61,12 @@ def insert(
     event_type: str,
     occurred_at: str,
     notes: str = None,
-) -> sqlite3.Row:
-    return conn.execute(
+) -> Optional[ApplicationEvent]:
+    row = conn.execute(
         INSERT_APPLICATION_EVENT_SQL,
         (application_id, event_type, occurred_at, notes),
     ).fetchone()
+    return ApplicationEvent(**dict(row)) if row else None
 
 
 def update(
@@ -68,11 +76,12 @@ def update(
     event_type: str,
     occurred_at: str,
     notes: str = None,
-) -> sqlite3.Row:
-    return conn.execute(
+) -> Optional[ApplicationEvent]:
+    row = conn.execute(
         UPDATE_APPLICATION_EVENT_SQL,
         (application_id, event_type, occurred_at, notes, application_event_id),
     ).fetchone()
+    return ApplicationEvent(**dict(row)) if row else None
 
 
 def delete(conn: sqlite3.Connection, application_event_id: int) -> bool:

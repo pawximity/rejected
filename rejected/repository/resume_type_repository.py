@@ -1,4 +1,7 @@
 import sqlite3
+from typing import Optional
+
+from models.resume_type import ResumeType
 
 FIND_RESUME_TYPE_SQL = """
     SELECT *
@@ -40,29 +43,38 @@ DELETE_RESUME_TYPE_SQL = """
 """
 
 
-def find(conn: sqlite3.Connection, resume_type_id: int) -> sqlite3.Row:
-    return conn.execute(FIND_RESUME_TYPE_SQL, (resume_type_id,)).fetchone()
+def find(conn: sqlite3.Connection, resume_type_id: int) -> Optional[ResumeType]:
+    row = conn.execute(FIND_RESUME_TYPE_SQL, (resume_type_id,)).fetchone()
+    return ResumeType(**dict(row)) if row else None
 
 
-def find_by_name(conn: sqlite3.Connection, name: str) -> sqlite3.Row:
-    return conn.execute(FIND_RESUME_TYPE_BY_NAME_SQL, (name,)).fetchone()
+def find_by_name(conn: sqlite3.Connection, name: str) -> Optional[ResumeType]:
+    row = conn.execute(FIND_RESUME_TYPE_BY_NAME_SQL, (name,)).fetchone()
+    return ResumeType(**dict(row)) if row else None
 
 
-def find_all(conn: sqlite3.Connection) -> list[sqlite3.Row]:
-    return conn.execute(FIND_ALL_RESUME_TYPES_SQL).fetchall()
+def find_all(conn: sqlite3.Connection) -> list[ResumeType]:
+    rows = conn.execute(FIND_ALL_RESUME_TYPES_SQL).fetchall()
+    return [ResumeType(**dict(row)) for row in rows]
 
 
-def insert(conn: sqlite3.Connection, name: str) -> sqlite3.Row:
-    return conn.execute(INSERT_RESUME_TYPE_SQL, (name,)).fetchone()
+def insert(conn: sqlite3.Connection, name: str) -> Optional[ResumeType]:
+    row = conn.execute(INSERT_RESUME_TYPE_SQL, (name,)).fetchone()
+    return ResumeType(**dict(row)) if row else None
 
 
 def update(
     conn: sqlite3.Connection,
     resume_type_id: int,
     name: str,
-) -> sqlite3.Row:
-    return conn.execute(UPDATE_RESUME_TYPE_SQL, (name, resume_type_id)).fetchone()
+) -> Optional[ResumeType]:
+    row = conn.execute(UPDATE_RESUME_TYPE_SQL, (name, resume_type_id)).fetchone()
+    return ResumeType(**dict(row)) if row else None
 
 
-def delete(conn: sqlite3.Connection, resume_type_id: int) -> sqlite3.Row:
-    return conn.execute(DELETE_RESUME_TYPE_SQL, (resume_type_id,)).fetchone()
+def delete(conn: sqlite3.Connection, resume_type_id: int) -> bool:
+    cursor = conn.execute(
+        DELETE_RESUME_TYPE_SQL,
+        (resume_type_id,),
+    )
+    return cursor.rowcount > 0
