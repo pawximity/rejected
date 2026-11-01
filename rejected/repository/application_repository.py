@@ -9,11 +9,10 @@ FIND_APPLICATION_SQL = """
     WHERE id = ?
 """
 
-FIND_APPLICATION_BY_COMPANY_AND_ROLE_SQL = """
+FIND_APPLICATIONS_BY_COMPANY_SQL = """
     SELECT *
     FROM applications
     WHERE company = ?
-    AND role = ?
 """
 
 FIND_ALL_APPLICATIONS_SQL = """
@@ -56,17 +55,9 @@ def find(conn: sqlite3.Connection, application_id: int) -> Optional[Application]
     return Application(**dict(row)) if row else None
 
 
-def find_by_company_and_role(
-    conn: sqlite3.Connection, company: str, role: str
-) -> Optional[Application]:
-    row = conn.execute(
-        FIND_APPLICATION_BY_COMPANY_AND_ROLE_SQL,
-        (
-            company,
-            role,
-        ),
-    ).fetchone()
-    return Application(**dict(row)) if row else None
+def find_by_company(conn: sqlite3.Connection, company: str) -> list[Application]:
+    rows = conn.execute(FIND_APPLICATIONS_BY_COMPANY_SQL, (company,)).fetchall()
+    return [Application(**dict(row)) for row in rows]
 
 
 def find_all(conn: sqlite3.Connection) -> list[Application]:
