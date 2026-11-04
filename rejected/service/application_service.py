@@ -16,7 +16,7 @@ def list_applications(conn: sqlite3.Connection) -> list[Application]:
     return applications
 
 
-def get_applications_by_company(
+def list_applications_by_company(
     conn: sqlite3.Connection, company: str
 ) -> list[Application]:
     applications = application_repository.find_by_company(conn, company)
@@ -42,6 +42,22 @@ def create_application(
     if application is None:
         raise RuntimeError(f"Failed to create application for {role} at {company}")
     return application
+
+
+def list_events(conn: sqlite3.Connection) -> list[ApplicationEvent]:
+    application_events = application_event_repository.find_all(conn)
+    if not application_events:
+        raise ResourceNotFoundError("No application events found")
+    return application_events
+
+
+def list_events_by_company(
+    conn: sqlite3.Connection, company: str
+) -> list[ApplicationEvent]:
+    application_events = application_event_repository.find_by_company(conn, company)
+    if not application_events:
+        raise ResourceNotFoundError(f"No application events found for {company}")
+    return application_events
 
 
 def create_event(

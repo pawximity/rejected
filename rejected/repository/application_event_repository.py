@@ -15,6 +15,14 @@ FIND_ALL_APPLICATION_EVENTS_SQL = """
     ORDER BY occurred_at DESC
 """
 
+FIND_ALL_APPLICATION_EVENTS_BY_COMPANY = """
+    SELECT ae.*
+    FROM application_events ae
+    JOIN applications a
+    ON ae.application_id = a.id
+    WHERE a.company = ?
+"""
+
 INSERT_APPLICATION_EVENT_SQL = """
     INSERT INTO application_events (
         application_id, event_type, occurred_at, notes
@@ -52,6 +60,11 @@ def find(
 
 def find_all(conn: sqlite3.Connection) -> list[ApplicationEvent]:
     rows = conn.execute(FIND_ALL_APPLICATION_EVENTS_SQL).fetchall()
+    return [ApplicationEvent(**dict(row)) for row in rows]
+
+
+def find_by_company(conn: sqlite3.Connection, company: str) -> list[ApplicationEvent]:
+    rows = conn.execute(FIND_ALL_APPLICATION_EVENTS_BY_COMPANY, (company,)).fetchall()
     return [ApplicationEvent(**dict(row)) for row in rows]
 
 
