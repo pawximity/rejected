@@ -1,4 +1,8 @@
 import typer
+from database import transaction
+from rich.console import Console
+from rich.table import Table
+from service import application_service
 
 app = typer.Typer()
 
@@ -10,7 +14,26 @@ def add(company: str, role: str, source: str = "other"):
 
 @app.command()
 def list():
-    print("Listing applications")
+    with transaction() as conn:
+        applications = application_service.list_applications(conn)
+
+    table = Table(title="Applications")
+    table.add_column("ID")
+    table.add_column("Company")
+    table.add_column("Role")
+    table.add_column("Applied")
+    table.add_column("Resume Type ID")
+
+    for application in applications:
+        table.add_row(
+            str(application.id),
+            application.company,
+            application.role,
+            application.applied_at.strftime("%m/%d/%Y"),
+            str(application.resume_type_id or "-"),
+        )
+
+    Console().print(table)
 
 
 @app.command()
