@@ -44,6 +44,12 @@ def create_application(
     return application
 
 
+def remove_application(conn: sqlite3.Connection, application_id: int) -> bool:
+    if not application_repository.delete(conn, application_id):
+        raise ResourceNotFoundError(f"No application found for {application_id}")
+    return True
+
+
 def list_events(conn: sqlite3.Connection) -> list[ApplicationEvent]:
     application_events = application_event_repository.find_all(conn)
     if not application_events:

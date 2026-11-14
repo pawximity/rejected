@@ -1,5 +1,6 @@
 import typer
 from database import transaction
+from error import ResourceNotFoundError
 from rich.console import Console
 from rich.table import Table
 from service import application_service
@@ -14,8 +15,12 @@ def add(company: str, role: str, source: str = "other"):
 
 @app.command()
 def list():
-    with transaction() as conn:
-        applications = application_service.list_applications(conn)
+    try:
+        with transaction() as conn:
+            applications = application_service.list_applications(conn)
+    except ResourceNotFoundError as e:
+        Console().print(f"Error: {e}")
+        raise typer.Exit(code=1) from e
 
     table = Table(title="Applications")
     table.add_column("ID")
@@ -38,7 +43,14 @@ def list():
 
 @app.command()
 def remove(application_id: str):
-    print("Removing application", application_id)
+    try:
+        with transaction() as conn:
+            application_service.remove_application(conn, int(application_id))
+    except ResourceNotFoundError as e:
+        Console().print(f"Error: {e}")
+        raise typer.Exit(code=1) from e
+
+    Console().print("Successfully removed application", application_id)
 
 
 @app.command()
