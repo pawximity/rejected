@@ -1,6 +1,6 @@
 import typer
 from database import transaction
-from error import ResourceNotFoundError
+from error import ResourceNotFoundError, ValidationError
 from rich.console import Console
 from rich.table import Table
 from service import application_service
@@ -9,8 +9,19 @@ app = typer.Typer()
 
 
 @app.command()
-def add(company: str, role: str, source: str = "other"):
-    print("Adding application", company, role, source)
+def add(
+    company: str, role: str, applied_at: str, resume_type: str, source: str = "other"
+):
+    try:
+        with transaction() as conn:
+            application = application_service.create_application(
+                conn, company, role, applied_at, resume_type, source
+            )
+    except (ResourceNotFoundError, ValidationError) as e:
+        Console().print(f"Error: {e}")
+        raise typer.Exit(code=1) from e
+
+    Console().print("Successfully created application", application.id)
 
 
 @app.command()
@@ -34,7 +45,7 @@ def list():
             str(application.id),
             application.company,
             application.role,
-            application.applied_at.strftime("%m/%d/%Y"),
+            application.applied_at,
             str(application.resume_type_id or "-"),
         )
 
@@ -54,5 +65,27 @@ def remove(application_id: str):
 
 
 @app.command()
-def update(application_id: str):
-    print("Updating application", application_id)
+def update(
+    application_id: str,
+    company: str,
+    role: str,
+    applied_at: str,
+    resume_type: str,
+    source: str = "other",
+):
+    try:
+        with transaction() as conn:
+            updated_application = application_service.update_application(
+                conn,
+                int(application_id),
+                company,
+                role,
+                applied_at,
+                resume_type,
+                source,
+            )
+    except (ResourceNotFoundError, ValidationError) as e:
+        Console().print(f"Error: {e}")
+        raise typer.Exit(code=1) from e
+
+    Console().print("Successfully updated application", updated_application.id)

@@ -7,7 +7,7 @@ class Application:
     id: int
     company: str
     role: str
-    applied_at: datetime
+    applied_at: str
     resume_type_id: int
     source: str
     created_at: datetime

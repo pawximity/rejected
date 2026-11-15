@@ -1,8 +1,9 @@
 import sqlite3
+from datetime import datetime
 
 import repository.application_repository as application_repository
 import repository.resume_type_repository as resume_type_repository
-from error import ResourceNotFoundError
+from error import ResourceNotFoundError, ValidationError
 from models.application import Application
 from models.application_event import ApplicationEvent
 from models.application_event_types import ApplicationEventType
@@ -33,15 +34,43 @@ def create_application(
     resume_type_name: str,
     source: str = None,
 ) -> Application:
+    normalized_applied_at = normalize_date(applied_at)
     resume_type = resume_type_repository.find_by_name(conn, resume_type_name)
     if resume_type is None:
         raise ResourceNotFoundError(f"Resume type not found: {resume_type_name}")
     application = application_repository.insert(
-        conn, company, role, applied_at, resume_type.id, source
+        conn, company, role, normalized_applied_at, resume_type.id, source
     )
     if application is None:
         raise RuntimeError(f"Failed to create application for {role} at {company}")
     return application
+
+
+def update_application(
+    conn: sqlite3.Connection,
+    application_id: int,
+    company: str,
+    role: str,
+    applied_at: str,
+    resume_type_name: str,
+    source: str = None,
+) -> Application:
+    normalized_applied_at = normalize_date(applied_at)
+    resume_type = resume_type_repository.find_by_name(conn, resume_type_name)
+    if resume_type is None:
+        raise ResourceNotFoundError(f"Resume type not found: {resume_type_name}")
+    updated_application = application_repository.update(
+        conn,
+        application_id,
+        company,
+        role,
+        normalized_applied_at,
+        resume_type.id,
+        source,
+    )
+    if updated_application is None:
+        raise RuntimeError(f"Failed to update application for {application_id}")
+    return updated_application
 
 
 def remove_application(conn: sqlite3.Connection, application_id: int) -> bool:
@@ -86,3 +115,12 @@ def create_event(
             f"Failed to create {event_type.value} event for {role} at {company}"
         )
     return event
+
+
+def normalize_date(date: str) -> str:
+    date_format = "%m/%d/%Y"
+    try:
+        date_value = datetime.strptime(date, date_format)
+        return date_value.strftime(date_format)
+    except ValueError:
+        raise ValidationError(f"Invalid date format {date}")

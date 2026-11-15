@@ -87,7 +87,7 @@ def update(
     role: str,
     applied_at: str,
     resume_type_id: int,
-    source: str,
+    source: str = None,
 ) -> Optional[Application]:
     row = conn.execute(
         UPDATE_APPLICATION_SQL,
