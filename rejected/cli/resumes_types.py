@@ -44,7 +44,7 @@ def list():
 
 
 @app.command()
-def remove(resume_type_id: str) -> None:
+def remove(resume_type_id: str):
     try:
         with transaction() as conn:
             resume_service.remove_resume_type(conn, int(resume_type_id))
