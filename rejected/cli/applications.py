@@ -6,6 +6,7 @@ from rich.table import Table
 from service import application_service
 
 app = typer.Typer()
+console = Console()
 
 
 @app.command()
@@ -17,11 +18,11 @@ def add(
             application = application_service.create_application(
                 conn, company, role, applied_at, resume_type, source
             )
-    except (ResourceNotFoundError, ValidationError) as e:
-        Console().print(f"Error: {e}")
+    except (ResourceNotFoundError, ValidationError, RuntimeError) as e:
+        console.print(f"Error: {e}")
         raise typer.Exit(code=1) from e
 
-    Console().print("Successfully created application", application.id)
+    console.print("Successfully created application", application.id)
 
 
 @app.command()
@@ -49,7 +50,7 @@ def list():
             str(application.resume_type_id or "-"),
         )
 
-    Console().print(table)
+    console.print(table)
 
 
 @app.command()
@@ -58,10 +59,10 @@ def remove(application_id: str):
         with transaction() as conn:
             application_service.remove_application(conn, int(application_id))
     except ResourceNotFoundError as e:
-        Console().print(f"Error: {e}")
+        console.print(f"Error: {e}")
         raise typer.Exit(code=1) from e
 
-    Console().print("Successfully removed application", application_id)
+    console.print("Successfully removed application", application_id)
 
 
 @app.command()
@@ -84,8 +85,8 @@ def update(
                 resume_type,
                 source,
             )
-    except (ResourceNotFoundError, ValidationError) as e:
-        Console().print(f"Error: {e}")
+    except (ResourceNotFoundError, ValidationError, RuntimeError) as e:
+        console.print(f"Error: {e}")
         raise typer.Exit(code=1) from e
 
-    Console().print("Successfully updated application", updated_application.id)
+    console.print("Successfully updated application", updated_application.id)

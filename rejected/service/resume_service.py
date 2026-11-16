@@ -22,3 +22,20 @@ def create_resume_type(conn: sqlite3.Connection, resume_type_name: str) -> Resum
     if resume_type is None:
         raise RuntimeError(f"Failed to create resume type {resume_type_name}")
     return resume_type
+
+
+def remove_resume_type(conn: sqlite3.Connection, resume_type_id: int) -> bool:
+    if not resume_type_repository.delete(conn, resume_type_id):
+        raise ResourceNotFoundError(f"No resume type found for {resume_type_id}")
+    return True
+
+
+def update_resume_type(
+    conn: sqlite3.Connection, resume_type_id: int, resume_type_name: str
+) -> ResumeType:
+    updated_resume_type = resume_type_repository.update(
+        conn, resume_type_id, resume_type_name
+    )
+    if updated_resume_type is None:
+        raise RuntimeError(f"Failed to update resume type for {resume_type_id}")
+    return updated_resume_type
