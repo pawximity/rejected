@@ -100,19 +100,21 @@ def create_event(
     application_id: int,
     company: str,
     role: str,
-    event_type: ApplicationEventType,
+    event_type: str,
     occurred_at: str,
     notes: str = None,
 ) -> ApplicationEvent:
     application = application_repository.find(conn, application_id)
     if application is None:
         raise ResourceNotFoundError(f"Application not found for {role} at {company}")
+    normalized_occurred_at = normalize_date(occurred_at)
+    normalized_event_type = normalize_event_type(event_type)
     event = application_event_repository.insert(
-        conn, application.id, event_type.value, occurred_at, notes
+        conn, application.id, normalized_event_type.value, normalized_occurred_at, notes
     )
     if event is None:
         raise RuntimeError(
-            f"Failed to create {event_type.value} event for {role} at {company}"
+            f"Failed to create {normalized_event_type.value} event for {role} at {company}"
         )
     return event
 
@@ -124,3 +126,11 @@ def normalize_date(date: str) -> str:
         return date_value.strftime(date_format)
     except ValueError:
         raise ValidationError(f"Invalid date format {date}")
+
+
+def normalize_event_type(event_type_name: str) -> ApplicationEventType:
+    try:
+        event_type = ApplicationEventType(event_type_name)
+        return event_type
+    except ValueError:
+        raise ValidationError(f"Invalid event type {event_type_name}")
